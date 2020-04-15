@@ -7,33 +7,55 @@
  * @param $array
  * @return string
  */
-function printArrayToCode($array)
+function printArrayToCode(array $array)
 {
-    $str = "[" . PHP_EOL;
+    $str = "[";
     foreach ($array as $key => $value) {
-        is_string($key) and $str .= "'{$key}'=>";
-        if (is_array($value)) {
-            $str .= printArrayToCode($value);
-        } else {
-            if ($value === true) {
-                $str .= "true";
-            } elseif ($value === false) {
-                $str .= "false";
-            } elseif ($value === 'true') {
-                $str .= "'true'";
-            } elseif ($value === 'false') {
-                $str .= "'false'";
-            } elseif ($value === NULL) {
-                $str .= "NULL";
-            } elseif (is_string($value)) {
-                $str .= "'{$value}'";
-            } else {
-                $str .= $value;
+        if(is_integer($key)){
+            if(is_array($value)){
+                $str .= printArrayToCode($value);
+            }else{
+                if ($value === true) {
+                    $str .= "true";
+                } elseif ($value === false) {
+                    $str .= "false";
+                } elseif ($value === 'true') {
+                    $str .= "'true'";
+                } elseif ($value === 'false') {
+                    $str .= "'false'";
+                } elseif ($value === NULL) {
+                    $str .= "NULL";
+                } elseif (is_string($value)) {
+                    $str .= "'{$value}'";
+                } else {
+                    $str .= $value;
+                }
             }
-            $str .= ',' . PHP_EOL;
+        }else{
+            if(is_array($value)){
+                $str .= "'{$key}'=>".printArrayToCode($value);
+            }else{
+                $str .= "'{$key}'=>";
+                if ($value === true) {
+                    $str .= "true";
+                } elseif ($value === false) {
+                    $str .= "false";
+                } elseif ($value === 'true') {
+                    $str .= "'true'";
+                } elseif ($value === 'false') {
+                    $str .= "'false'";
+                } elseif ($value === NULL) {
+                    $str .= "NULL";
+                } elseif (is_string($value)) {
+                    $str .= "'{$value}'";
+                } else {
+                    $str .= $value;
+                }
+            }
         }
+        $str .= ',';
     }
-    $str = trim($str, ',' . PHP_EOL);
-    $str .= PHP_EOL . "]," . PHP_EOL;
+    $str = trim($str, ',');
+    $str .= "]";
     return $str;
 }

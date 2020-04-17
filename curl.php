@@ -99,26 +99,32 @@ class Curl{
             "location" =>['auto_referer','follow-location','unrestricted_auth','max-re-dirs','post-re-dir'],
             "return_transfer" => ['binary_transfer'],
             "cookie_session" =>['cookie_session','cookie','cookie-file','cookie-JAR'],
-            "ssl" => ['cert_info','ssl-false-start','ssl_enable_alpn','ssl_enable_npn','ssl_verify-peer','ssl_verify-status','ssl_options','ssl_verify-host','ssl-version','ca-info','ca-path'],
-            "unix" =>['crlf'],
+            "ssl" => ['cert_info','ssl-false-start','ssl_enable_alpn','ssl_enable_npn',
+                'ssl_verify-peer','ssl_verify-status','ssl_options','ssl_verify-host',
+                'ssl-version','ca-info','ca-path','key-pass-wd','random_file',
+                'ssl_cipher_list','ssl-cert','ssl-cert-pass-wd','ssl-cert-type',
+                'ssl-engine','ssl-engine_default','ssl-key','ssl-key-pass-wd','ssl-key-type','','','','','','','','','','','','','','','','','','','','','',''
+                ],
+            "unix" =>['crlf','unix_socket_path'],
             "ip" => ['ip-resolve'],
             "DNS" => ['dns_use_global_cache','dns_cache_timeout','dns_interface','dns_local_IP4','dns_local_IP6'],
             "http_smtP_pop3" => ['connect_only'],
-            "http" => ['fail-one-error','http-get','post','put','http-proxy-tunnel','http_version','http-auth','proxy-auth','proxy-port','proxy-type'],
-            "ftp" =>['ftp_use_eprt','ftp_use_epsv','ftp_create_missing_dirs','ftp-list-only','transfer-text|ftp-ascII','ftp-ssl-auth','ftp_file-method',['ftp-append']],
+            "http" => ['fail-one-error','http-get','post','put','http-proxy-tunnel','http_version','http-auth','proxy-auth','proxy-port','proxy-type','post-fields','proxy','proxy_service_name','proxy-user-pwd','range','referer'],
+            "ftp" =>['ftp_use_eprt','ftp_use_epsv','ftp_create_missing_dirs','ftp-list-only','transfer-text|ftp-ascII','ftp-ssl-auth','ftp_file-method','ftp-port','krb4-level',['ftp-append']],
             'tftp' => ['tftp_no_options'],
             "tcp" => ['tcp_no_delay','tcp_fast-open'],
             "file" => ['file-time',['path_as_is']],
-            "header" => ['header',['header_out']],
+            "header" => ['header','encoding','user-agent',['header_out']],
             "速度" => ['low_speed_limit','low_speed_time','max_recv_speed_large','max_send_speed_large'],
             "port" =>['port'],
             "stream" => ['stream_weight'],
             "protocols" => ['protocols','default_protocol'],
-            "ssh" => ['ssh_auth_types'],
+            "ssh" => ['ssh_auth_types','ssh_host_public_key_md5','ssh_public_key-file','ssh_private_key-file'],
             [ 'no-body','no-progress','no-signal','pipe-wait','safe_upload',
                 'sasl_ir','upload','verbose','buffer-size','expect_100_timeout_ms',
                 'header-opt','re-dir_protocols','resume_from','time-condition','time-value',
-                'customer-request'
+                'customer-request','egd-socket','interface','login_options','pinned-public-key',
+                'private','service_name'
             ]
 
         ];
@@ -222,17 +228,68 @@ class Curl{
             'dns_interface',//Set the name of the network interface that the DNS resolver should bind to.This must be an interface name (not an address).
             'dns_local_IP4',//Set the local IPv4 address that the resolver should bind to. The argumentshould contain a single numerical IPv4 address as a string.
             'dns_local_IP6',//Set the local IPv6 address that the resolver should bind to. The argumentshould contain a single numerical IPv6 address as a string.
-
-
-
-
-
-
-
+            'egd-socket',//类似CURLOPT_RANDOM_FILE，除了一个Entropy Gathering Daemon套接字。
+            'ftp-port',//这个值将被用来获取供FTP"PORT"指令所需要的IP地址。 "PORT" 指令告诉远程服务器连接到我们指定的IP地址。这个字符串可以是纯文本的IP地址、主机名、一个网络接口名（UNIX下）或者只是一个'-'来使用默认的 IP 地址。
+            'encoding',//HTTP请求头中"Accept-Encoding: "的值。这使得能够解码响应的内容。支持的编码有"identity"，"deflate"和"gzip"。如果为空字符串""，会发送所有支持的编码类型
+            'interface',//发送的网络接口（interface），可以是一个接口名、IP 地址或者是一个主机名。
+            'key-pass-wd',//使用 CURLOPT_SSLKEY 或 CURLOPT_SSH_PRIVATE_KEYFILE 私钥时候的密码
+            'krb4-level',//KRB4 (Kerberos 4) 安全级别。下面的任何值都是有效的(从低到高的顺序)："clear"、"safe"、"confidential"、"private".。如果字符串以上这些，将使用"private"。这个选项设置为 NULL 时将禁用 KRB4 安全认证。目前 KRB4 安全认证只能用于 FTP 传输。
+            'login_options',//Can be used to set protocol specific login options, such as thepreferred authentication mechanism via "AUTH=NTLM" or "AUTH=*",and should be used in conjunction with the CURLOPT_USERNAME option.
+            'pinned-public-key',//Set the pinned public key.The string can be the file name of your pinned public key. The fileformat expected is "PEM" or "DER". The string can also be anynumber of base64 encoded sha256 hashes preceded by "sha256//" andseparated by ";".
+            'post-fields',//全部数据使用HTTP协议中的 "POST" 操作来发送。要发送文件，在文件名前面加上@前缀并使用完整路径。文件类型可在文件名后以 ';type=mimetype' 的格式指定。这个参数可以是 urlencoded 后的字符串，类似'para1=val1&para2=val2&...'，也可以使用一个以字段名为键值，字段数据为值的数组。如果value是一个数组，Content-Type头将会被设置成multipart/form-data。  从 PHP 5.2.0 开始，使用 @ 前缀传递文件时，value 必须是个数组。  从 PHP 5.5.0 开始, @ 前缀已被废弃，文件可通过 CURLFile 发送。设置 CURLOPT_SAFE_UPLOAD 为 TRUE 可禁用 @ 前缀发送文件，以增加安全性。
+            'private',//Any data that should be associated with this cURL handle.This datacan subsequently be retrieved with the CURLINFO_PRIVATE option of curl_getinfo(). cURL does nothing with this data.When using a cURL multi handle, this private data is typically aunique key to identify a standard cURL handle.
+            'proxy',//HTTP 代理通道
+            'proxy_service_name',//代理验证服务的名称。
+            'proxy-user-pwd',//一个用来连接到代理的"[username]:[password]"格式的字符串。
+            'random_file',//一个被用来生成 SSL 随机数种子的文件名。
+            'range',//以"X-Y"的形式，其中X和Y都是可选项获取数据的范围，以字节计。HTTP传输线程也支持几个这样的重复项中间用逗号分隔如"X-Y,N-M"。
+            'referer',//在HTTP请求头中"Referer: "的内容
+            'service_name',//验证服务的名称
+            'ssh_host_public_key_md5',//包含 32 位长的 16 进制数值。这个字符串应该是远程主机公钥（public key） 的 MD5 校验值。在不匹配的时候 libcurl 会拒绝连接。此选项仅用于 SCP 和 SFTP 的传输
+            'ssh_public_key-file',//
+            'ssh_private_key-file',//
+            'ssl_cipher_list',//一个SSL的加密算法列表。例如RC4-SHA和TLSv1都是可用的加密列表。
+            'ssl-cert',//一个包含 PEM 格式证书的文件名。
+            'ssl-cert-pass-wd',//使用CURLOPT_SSLCERT证书需要的密码
+            'ssl-cert-type',//证书的类型。支持的格式有"PEM" (默认值), "DER"和"ENG"。
+            'ssl-engine',//用来在CURLOPT_SSLKEY中指定的SSL私钥的加密引擎变量。
+            'ssl-engine_default',//用来做非对称加密操作的变量
+            'ssl-key',//包含 SSL 私钥的文件名
+            'ssl-key-pass-wd',//在 CURLOPT_SSLKEY中指定了的SSL私钥的密码
+            'ssl-key-type',//CURLOPT_SSLKEY中规定的私钥的加密类型，支持的密钥类型为"PEM"(默认值)、"DER"和"ENG"。
+            'unix_socket_path',//使用 Unix 套接字作为连接，并用指定的 string 作为路径。
+            'url',//需要获取的 URL 地址，也可以在curl_init() 初始化会话的时候。
+            'user-agent',//在HTTP请求中包含一个"User-Agent: "头的字符串。
+            /////////////////////
+            'user-name',//验证中使用的用户名。
+            'user-pwd',//传递一个连接中需要的用户名和密码，格式为："[username]:[password]"。
+            'x-oauth2_bearer',//指定 OAuth 2.0 access token
         ];
-        $array = [];
-        $source = [];
-        $function = [];
+        $array = [
+            'connect_to',//连接到指定的主机和端口，替换 URL 中的主机和端口。接受指定字符串格式的数组： HOST:PORT:CONNECT-TO-HOST:CONNECT-TO-PORT
+            'http200-aliases',//HTTP 200 响应码数组，数组中的响应码被认为是正确的响应，而非错误
+            'http-header',//设置 HTTP 头字段的数组。格式： array('Content-type: text/plain', 'Content-length: 100')
+            'post-quote',//在 FTP 请求执行完成后，在服务器上执行的一组array格式的 FTP 命令。
+            'proxy-header',//传给代理的自定义 HTTP 头。
+            'quote',//一组先于 FTP 请求的在服务器上执行的FTP命令。
+            'resolve',//提供自定义地址，指定了主机和端口。包含主机、端口和 ip 地址的字符串，组成 array 的，每个元素以冒号分隔。格式： array("example.com:80:127.0.0.1")
+        ];
+        $source = [
+            'file',//设置输出文件，默认为STDOUT (浏览器)。
+            'infile',//上传文件时需要读取的文件。
+            'stderr',//错误输出的地址，取代默认的STDERR。
+            'write-header',//设置 header 部分内容的写入的文件地址。
+        ];
+        $function = [
+            'header-function',//设置一个回调函数，这个函数有两个参数，第一个是cURL的资源句柄，第二个是输出的 header 数据。header数据的输出必须依赖这个函数，返回已写入的数据大小。
+            'pass-wd-function',// 设置一个回调函数，有三个参数，第一个是cURL的资源句柄，第二个是一个密码提示符，第三个参数是密码长度允许的最大值。返回密码的值。
+            'progress-function',//设置一个回调函数，有五个参数，第一个是cURL的资源句柄，第二个是预计要下载的总字节（bytes）数。第三个是目前下载的字节数，第四个是预计传输中总上传字节数，第五个是目前上传的字节数。
+            'read-function',//回调函数名。该函数应接受三个参数。第一个是 cURL resource；第二个是通过选项 CURLOPT_INFILE 传给 cURL 的 stream resource；第三个参数是最大可以读取的数据的数量。回 调函数必须返回一个字符串，长度小于或等于请求的数据量（第三个参数）。一般从传入的 stream resource 读取。返回空字符串作为 EOF（文件结束） 信号
+            'write-function',//回调函数名。该函数应接受两个参数。第一个是 cURL resource；第二个是要写入的数据字符串。数 据必须在函数中被保存。函数必须准确返回写入数据的字节数，否则传输会被一个错误所中 断。
+        ];
+        $other = [
+            'share',//curl_share_init() 返回的结果。使 cURL 可以处理共享句柄里的数据。
+        ];
 
         $tmpBool = ['type' => 'bool','verify' => 'in', 'boundary' => [true, false, 1, 0]];
         $tmpInteger = ['type' => 'integer', 'verify' => 'reg', 'boundary' =>'/^[1-9][0-9]*$/'];
